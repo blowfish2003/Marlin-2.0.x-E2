@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define CONFIG_EXAMPLES_DIR "Creality/Ender-2"
+
 /**
  * Configuration_adv.h
  *
@@ -628,7 +630,7 @@
 
 //#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
 
-#define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
+#define HOMING_BUMP_MM      { 5, 5, 1 }       // (mm) Backoff from endstops after first bump
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 
 //#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
@@ -683,7 +685,7 @@
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  //#define BLTOUCH_SET_5V_MODE
+  #define BLTOUCH_SET_5V_MODE
 
   /**
    * Safety: Activate if connecting a probe with an unknown voltage mode.
@@ -759,7 +761,7 @@
 
   // On a 300mm bed a 5% grade would give a misalignment of ~1.5cm
   #define G34_MAX_GRADE              5    // (%) Maximum incline that G34 will handle
-  #define Z_STEPPER_ALIGN_ITERATIONS 5    // Number of iterations to apply during alignment
+  #define Z_STEPPER_ALIGN_ITERATIONS 3    // Number of iterations to apply during alignment
   #define Z_STEPPER_ALIGN_ACC        0.02 // Stop iterating early if the accuracy is better than this
   #define RESTORE_LEVELING_AFTER_G34      // Restore leveling after G34 is done?
   // After G34, re-home Z (G28 Z) or just calculate it from the last probe heights?
@@ -953,7 +955,7 @@
 //#define MICROSTEP16 LOW,LOW,HIGH
 //#define MICROSTEP32 HIGH,LOW,HIGH
 
-// Microstep settings (Requires a board with pins named X_MS1, X_MS2, etc.)
+// Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
 /**
@@ -1015,7 +1017,7 @@
 // @section lcd
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 0 } // Feedrates for manual moves along X, Y, Z, E from panel
   #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
   #if ENABLED(ULTIPANEL)
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
@@ -1547,14 +1549,14 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
   //#define BABYSTEP_MILLIMETER_UNITS       // Specify BABYSTEP_MULTIPLICATOR_(XY|Z) in mm instead of micro-steps
-  #define BABYSTEP_MULTIPLICATOR_Z  1       // (steps or mm) Steps or millimeter distance for each Z babystep
+  #define BABYSTEP_MULTIPLICATOR_Z  10       // (steps or mm) Steps or millimeter distance for each Z babystep
   #define BABYSTEP_MULTIPLICATOR_XY 1       // (steps or mm) Steps or millimeter distance for each XY babystep
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
@@ -2463,6 +2465,166 @@
   #define E5_HYBRID_THRESHOLD     30
   #define E6_HYBRID_THRESHOLD     30
   #define E7_HYBRID_THRESHOLD     30
+
+  /**
+   * CoolStep. Currently supported for TMC2130, TMC2209, TMC5130 and TMC5160 only.
+   * This mode allows for cooler steppers and energy savings.
+   * The driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.
+   *
+   * If SG_RESULT goes below COOLSTEP_LOWER_LOAD_THRESHOLD * 32 stepper current will be increased.
+   * Set to 0 to disable CoolStep.
+   *
+   * If SG_RESULT goes above (COOLSTEP_LOWER_LOAD_THRESHOLD + COOLSTEP_UPPER_LOAD_THRESHOLD + 1) * 32
+   * stepper current will be decreased.
+   *
+   * SEUP sets the increase step width. Value range is 0..3 and computed as 2^SEUP.
+   * SEDN sets the decrease delay. Value range is 0..3, 0 being the slowest.
+   * SEIMIN sets the lower current limit. 0: 1/2 of IRUN, 1:1/4 of IRUN
+   */
+
+  #if AXIS_HAS_COOLSTEP(X)
+    #define X_COOLSTEP_SPEED_THRESHOLD        5
+    #define X_COOLSTEP_LOWER_LOAD_THRESHOLD   0
+    #define X_COOLSTEP_UPPER_LOAD_THRESHOLD   0
+    #define X_COOLSTEP_SEUP                   0
+    #define X_COOLSTEP_SEDN                   0
+    #define X_COOLSTEP_SEIMIN                 0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(X2)
+    #define X2_COOLSTEP_SPEED_THRESHOLD       5
+    #define X2_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define X2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define X2_COOLSTEP_SEUP                  0
+    #define X2_COOLSTEP_SEDN                  0
+    #define X2_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(Y)
+    #define Y_COOLSTEP_SPEED_THRESHOLD        5
+    #define Y_COOLSTEP_LOWER_LOAD_THRESHOLD   0
+    #define Y_COOLSTEP_UPPER_LOAD_THRESHOLD   0
+    #define Y_COOLSTEP_SEUP                   0
+    #define Y_COOLSTEP_SEDN                   0
+    #define Y_COOLSTEP_SEIMIN                 0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(Y2)
+    #define Y2_COOLSTEP_SPEED_THRESHOLD       5
+    #define Y2_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define Y2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Y2_COOLSTEP_SEUP                  0
+    #define Y2_COOLSTEP_SEDN                  0
+    #define Y2_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(Z)
+    #define Z_COOLSTEP_SPEED_THRESHOLD        5
+    #define Z_COOLSTEP_LOWER_LOAD_THRESHOLD   0
+    #define Z_COOLSTEP_UPPER_LOAD_THRESHOLD   0
+    #define Z_COOLSTEP_SEUP                   0
+    #define Z_COOLSTEP_SEDN                   0
+    #define Z_COOLSTEP_SEIMIN                 0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(Z2)
+    #define Z2_COOLSTEP_SPEED_THRESHOLD       5
+    #define Z2_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define Z2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Z2_COOLSTEP_SEUP                  0
+    #define Z2_COOLSTEP_SEDN                  0
+    #define Z2_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(Z3)
+    #define Z3_COOLSTEP_SPEED_THRESHOLD       5
+    #define Z3_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define Z3_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Z3_COOLSTEP_SEUP                  0
+    #define Z3_COOLSTEP_SEDN                  0
+    #define Z3_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(Z4)
+    #define Z4_COOLSTEP_SPEED_THRESHOLD       5
+    #define Z4_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define Z4_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Z4_COOLSTEP_SEUP                  0
+    #define Z4_COOLSTEP_SEDN                  0
+    #define Z4_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E0)
+    #define E0_COOLSTEP_SPEED_THRESHOLD       5
+    #define E0_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E0_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E0_COOLSTEP_SEUP                  0
+    #define E0_COOLSTEP_SEDN                  0
+    #define E0_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E1)
+    #define E1_COOLSTEP_SPEED_THRESHOLD       5
+    #define E1_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E1_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E1_COOLSTEP_SEUP                  0
+    #define E1_COOLSTEP_SEDN                  0
+    #define E1_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E2)
+    #define E2_COOLSTEP_SPEED_THRESHOLD       5
+    #define E2_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E2_COOLSTEP_SEUP                  0
+    #define E2_COOLSTEP_SEDN                  0
+    #define E2_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E3)
+    #define E3_COOLSTEP_SPEED_THRESHOLD       5
+    #define E3_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E3_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E3_COOLSTEP_SEUP                  0
+    #define E3_COOLSTEP_SEDN                  0
+    #define E3_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E4)
+    #define E4_COOLSTEP_SPEED_THRESHOLD       5
+    #define E4_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E4_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E4_COOLSTEP_SEUP                  0
+    #define E4_COOLSTEP_SEDN                  0
+    #define E4_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E5)
+    #define E5_COOLSTEP_SPEED_THRESHOLD       5
+    #define E5_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E5_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E5_COOLSTEP_SEUP                  0
+    #define E5_COOLSTEP_SEDN                  0
+    #define E5_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E6)
+    #define E6_COOLSTEP_SPEED_THRESHOLD       5
+    #define E6_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E6_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E6_COOLSTEP_SEUP                  0
+    #define E6_COOLSTEP_SEDN                  0
+    #define E6_COOLSTEP_SEIMIN                0
+  #endif
+
+  #if AXIS_HAS_COOLSTEP(E7)
+    #define E7_COOLSTEP_SPEED_THRESHOLD       5
+    #define E7_COOLSTEP_LOWER_LOAD_THRESHOLD  0
+    #define E7_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E7_COOLSTEP_SEUP                  0
+    #define E7_COOLSTEP_SEDN                  0
+    #define E7_COOLSTEP_SEIMIN                0
+  #endif
 
   /**
    * Use StallGuard2 to home / probe X, Y, Z.
